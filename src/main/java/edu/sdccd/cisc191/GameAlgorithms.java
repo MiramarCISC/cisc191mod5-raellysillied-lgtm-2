@@ -2,6 +2,7 @@ package edu.sdccd.cisc191;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Stack;
 
 /**
  * Module 5 Lab: Recursion + Algorithms
@@ -133,7 +134,33 @@ public class GameAlgorithms {
      * @return number of connected walkable tiles
      */
     public static int countConnectedTilesIterative(char[][] map, int startRow, int startCol) {
-        return -999;
+        if (map[startRow][startCol] != '.') {
+            return 0;
+        }
+
+        int count = 0;
+        Stack<int[]> stack = new Stack<>();
+        stack.push(new int[]{startRow, startCol});
+
+        while (!stack.isEmpty()) {
+            int[] cell = stack.pop();
+            int row = cell[0];
+            int col = cell[1];
+
+            if (isOutOfBounds(map, row, col) || map[row][col] != '.') {
+                continue;
+            }
+
+            map[row][col] = '!';
+            count++;
+
+            stack.push(new int[]{row - 1, col});
+            stack.push(new int[]{row + 1, col});
+            stack.push(new int[]{row, col - 1});
+            stack.push(new int[]{row, col + 1});
+        }
+
+        return count;
     }
 
     /**
