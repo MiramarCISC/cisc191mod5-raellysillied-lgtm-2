@@ -2,7 +2,6 @@ package edu.sdccd.cisc191;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Stack;
 
 /**
  * Module 5 Lab: Recursion + Algorithms
@@ -40,6 +39,7 @@ public class GameAlgorithms {
      * @return index of target, or -1 if not found
      */
     private static int findMatchRecursiveHelper(int[] sortedMatchIds, int target, int low, int high) {
+        // PR: Proper base case
         if (low > high) { // base case
             return -1;
         }
@@ -49,9 +49,12 @@ public class GameAlgorithms {
             return mid; // found match ID
         } else if (target < sortedMatchIds[mid]) { // "shift" right bound and self-call
             return findMatchRecursiveHelper(sortedMatchIds, target, low, mid - 1);
-        } else { // (target > sortedMatchIds[mid]), "shift left bound and self-call
+        } else { // (target > sortedMatchIds[mid]), shift left bound and self-call
             return findMatchRecursiveHelper(sortedMatchIds, target, mid + 1, high);
         }
+
+        // PR: Appropriate use of recursion; each call does get closer to base case as it
+        //     removes values whose relationship to the target are known.
     }
 
     /**
@@ -65,6 +68,7 @@ public class GameAlgorithms {
         int leftBound = 0;
         int rightBound = sortedMatchIds.length - 1;
 
+        // PR: Ends if left > right, correct base case.
         while (leftBound <= rightBound) { // loops until "base case" true
             int midpoint = leftBound + (rightBound - leftBound) / 2; // prevent overflow
 
@@ -78,6 +82,8 @@ public class GameAlgorithms {
         }
 
         return -1;
+
+        // PR: Appropriate use of iteration, similar implementation and adherence to standards as sibling method.
     }
 
     /**
@@ -94,6 +100,7 @@ public class GameAlgorithms {
      * @return number of connected walkable tiles
      */
     public static int countConnectedTilesRecursive(char[][] map, int startRow, int startCol) {
+        // PR: Correct base case
         if (isOutOfBounds(map, startRow, startCol) || map[startRow][startCol] != '.') { // Base case
             return 0;
         }
@@ -101,7 +108,7 @@ public class GameAlgorithms {
         map[startRow][startCol] = '!'; // mark as visited to ensure no repeated counts
         int count = 1; // count the current tile marked
 
-        /**
+        /*
          * Remember that a 2D array starts from the top left, rows = top to bottom, columns = left to right
          *    0  1  2
          * 0  -  X  X
@@ -115,7 +122,7 @@ public class GameAlgorithms {
         count += countConnectedTilesRecursive(map, startRow, startCol - 1); // Check to the left
         count += countConnectedTilesRecursive(map, startRow, startCol + 1); // Check to the right
 
-        /**
+        /*
          * TLDR: Each step evaluates if its tile is valid
          * Then proceeds to create more of itself onto neighbouring tiles
          * Until the full area is marked as valid
@@ -123,6 +130,9 @@ public class GameAlgorithms {
          */
 
         return count;
+
+        // PR: Appropriate use of recursion; student makes sure to avoid stack overflows while checking
+        //     the cell's four neighbors.
     }
 
     /**
@@ -139,14 +149,18 @@ public class GameAlgorithms {
         }
 
         int count = 0;
-        Stack<int[]> stack = new Stack<>();
-        stack.push(new int[]{startRow, startCol});
+
+        // PR: Deque is preferred over Stack in modern Java; Stack is, in practice, deprecated.
+        //     CellPosition record exists, use is preferred.
+        Deque<CellPosition> stack = new ArrayDeque<>();
+        stack.push(new CellPosition(startRow, startCol));
 
         while (!stack.isEmpty()) {
-            int[] cell = stack.pop();
-            int row = cell[0];
-            int col = cell[1];
+            CellPosition cell = stack.pop();
+            int row = cell.row();
+            int col = cell.col();
 
+            // PR: Correct base case
             if (isOutOfBounds(map, row, col) || map[row][col] != '.') {
                 continue;
             }
@@ -154,13 +168,16 @@ public class GameAlgorithms {
             map[row][col] = '!';
             count++;
 
-            stack.push(new int[]{row - 1, col});
-            stack.push(new int[]{row + 1, col});
-            stack.push(new int[]{row, col - 1});
-            stack.push(new int[]{row, col + 1});
+            // PR: Making use of the helper pushNeighbor() method provided by instructor.
+            pushNeighbor(stack, row-1, col);
+            pushNeighbor(stack, row+1, col);
+            pushNeighbor(stack, row, col-1);
+            pushNeighbor(stack, row, col+1);
         }
 
         return count;
+
+        // PR: Good use of iteration. Does get closer to base case as it marks visited cells.
     }
 
     /**
@@ -193,6 +210,8 @@ public class GameAlgorithms {
             return containsMatchHelper(node.getLeft(), target) || containsMatchHelper(node.getRight(), target);
             // Will try recursion down the left subtree first and then do the right if no match found
         }
+
+        // PR: Appropriate and elegant use of recursion. Not much to add.
     }
 
     /**
